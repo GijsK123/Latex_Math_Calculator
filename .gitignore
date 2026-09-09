@@ -1,0 +1,59 @@
+# ─────────────────────────────────────
+# macOS
+# ─────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ─────────────────────────────────────
+# VS Code
+# ─────────────────────────────────────
+.vscode/
+
+# ─────────────────────────────────────
+# .NET / C#
+# ─────────────────────────────────────
+bin/
+obj/
+
+# User-specific Visual Studio files
+*.user
+*.userosscache
+*.suo
+
+# .NET build artifacts
+*.nupkg
+*.snupkg
+
+# NuGet
+packages/
+
+# Test results
+TestResults/
+*.trx
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# ─────────────────────────────────────
+# Logs
+# ─────────────────────────────────────
+*.log
+
+# ─────────────────────────────────────
+# Local configuration / secrets
+# ─────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─────────────────────────────────────
+# Temporary files
+# ─────────────────────────────────────
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
