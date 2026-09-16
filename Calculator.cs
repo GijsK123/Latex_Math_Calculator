@@ -2,7 +2,7 @@ using System.IO.Pipelines;
 
 class Calculator
 {
-    
+
 
     // perform addition between floating point numbers
     float Add(float a, float b)
@@ -26,7 +26,7 @@ class Calculator
     }
 
     // takes the logarithm of the 'val' with base value 'logBase'
-   float Log(float val, float logBase)
+    double Log(float val, float logBase)
     {
         return Math.Log(val, logBase);   
     } 
