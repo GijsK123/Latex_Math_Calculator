@@ -1,16 +1,15 @@
 using System.IO.Pipelines;
 
-class Calculator
+public class Calculator
 {
 
-
     // perform addition between floating point numbers
-    float Add(float a, float b)
+    public static float Add(float a, float b)
     {
         return a+b;
     }
 
-    float Subt(float a, float b)
+    public static float Subt(float a, float b)
     {
         return a-b;
     }
