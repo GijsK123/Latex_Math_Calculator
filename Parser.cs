@@ -26,11 +26,36 @@ public class MathParser
                 } else
                 {
                     currentExpression = currentItem;
-                }
+                }   
+                Console.WriteLine("Entering loop");
 
                 if (input.Contains(')')) // find the whole expression as a sub-expression, evaluate it, continue
                 {
-                    
+                    Console.WriteLine($"Loop contained a bracket, current item is: {currentItem}");
+                    if (currentItem == ")")
+                    {
+                        Console.WriteLine("There are brackets, looking for the next bracket");
+                        // find the closing bracket
+                        for(int j = i; j >= 0; j--)
+                        {
+                            if (args[j] == "(")
+                            {
+                                Console.WriteLine("Found closing bracket");
+                                string subString = string.Join(" ", args[(j+1)..i]);
+                                Console.WriteLine($"The substring is{subString}");
+                                string evaluatedSubString = ParseInput(subString);
+
+                                Console.WriteLine($"The substring evaluated to: {evaluatedSubString}");
+
+
+                                Console.WriteLine($"This is the input before replace: {input}");
+                                input = input.Replace("( " + subString + " )", evaluatedSubString);
+                                Console.WriteLine($"The current input is then: {input}");
+                                break;
+                            }
+                        }
+                    }
+   
                 }
                 else if (input.Contains('*') || input.Contains('/'))
                 {
