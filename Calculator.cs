@@ -14,12 +14,12 @@ public class Calculator
         return a-b;
     }
 
-    float Div(float a, float b)
+    public static float Div(float a, float b)
     {
         return a/b;
     }
 
-    float Mult(float a, float b)
+    public static float Mult(float a, float b)
     {
         return a*b;
     }
