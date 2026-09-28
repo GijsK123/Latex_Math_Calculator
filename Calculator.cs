@@ -25,9 +25,9 @@ public class Calculator
     }
 
     // takes the logarithm of the 'val' with base value 'logBase'
-    double Log(float val, float logBase)
+    public static float Log(float val, float logBase)
     {
-        return Math.Log(val, logBase);   
+        return (float)Math.Log(val, logBase);   
     } 
 
 

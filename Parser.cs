@@ -6,56 +6,76 @@ public class MathParser
 {
     
     static string[] mathematicalOperators = ["+","-","*","/"];
+    static string[] specialOperators = ["log"];
 
     public static string ParseInput(string input)
     {
         
         while(input.Contains(' '))
         {
-            string[] args = input.Split(' ');
+            string[] args = input.Split([' ','_']);
 
             // start at second-to-last item as the last item will never be an operator
-            for(int i = args.Length-1; i>0; i--)
+            for(int i = args.Length-1; i>=0; i--)
             {
                 string currentItem = args[i];
+                Console.WriteLine($"CurrentItem is {currentItem}");
+
+                
                 string currentExpression;
                 if (mathematicalOperators.Contains(currentItem))
                 {
-                    
                     currentExpression = args[i-1] + " " + currentItem + " " + args[i+1];
-                } else
+                }
+                else if (specialOperators.Contains(currentItem))
+                {
+                    currentExpression = args[i] + "_" + args[i+1] + " " + args[i+2];
+                } 
+                else
                 {
                     currentExpression = currentItem;
                 }   
-                Console.WriteLine("Entering loop");
 
+
+                // Working out brackets!!
                 if (input.Contains(')')) // find the whole expression as a sub-expression, evaluate it, continue
                 {
-                    Console.WriteLine($"Loop contained a bracket, current item is: {currentItem}");
                     if (currentItem == ")")
                     {
-                        Console.WriteLine("There are brackets, looking for the next bracket");
                         // find the closing bracket
-                        for(int j = i; j >= 0; j--)
+                        for(int j = i - 1; j >= 0; j--)
                         {
-                            if (args[j] == "(")
+                            int diff = Math.Abs(j-i);
+                            if (args[j] == "(") // if diff smaller than 1, there is no value in the brackets
                             {
-                                Console.WriteLine("Found closing bracket");
                                 string subString = string.Join(" ", args[(j+1)..i]);
-                                Console.WriteLine($"The substring is{subString}");
-                                string evaluatedSubString = ParseInput(subString);
-
-                                Console.WriteLine($"The substring evaluated to: {evaluatedSubString}");
-
-
-                                Console.WriteLine($"This is the input before replace: {input}");
-                                input = input.Replace("( " + subString + " )", evaluatedSubString);
-                                Console.WriteLine($"The current input is then: {input}");
-                                break;
+                                if(diff <= 1)
+                                {
+                                    input = input.Replace("( )", "");
+                                    break;
+                                } 
+                                else
+                                {
+                                    string evaluatedSubString = ParseInput(subString);
+                                    input = input.Replace("( " + subString + " )", evaluatedSubString);
+                                    break;
+                                }
+                                
                             }
+                    
                         }
                     }
    
+                }
+                else if (input.Contains("log"))
+                {
+                    if(currentItem == "log")
+                    {
+                        Console.WriteLine("Currently evaluating a logarithm");
+                        float currentResult = EvaluateLogarithm(args, i);
+                        input = input.Replace(currentExpression, currentResult.ToString());
+                        break;
+                    }
                 }
                 else if (input.Contains('*') || input.Contains('/'))
                 {
@@ -70,6 +90,11 @@ public class MathParser
                     float currentResult = EvaluateExpression(args, i);
                     input = input.Replace(currentExpression, currentResult.ToString());
                     break;
+                }
+                else
+                {
+                    Console.WriteLine("There was no operator found, something is wrong I think");
+                    return "";
                 }
             }
         }
@@ -89,6 +114,14 @@ public class MathParser
 
         float intermediary = CalculateExpression(currentOp, lhs, rhs);
         return intermediary;
+    }
+
+    public static float EvaluateLogarithm(string[] input, int i)
+    {
+        int logBase = Int32.Parse(input[i+1]);
+        float value = float.Parse(input[i+2]);
+
+        return CalculateExpression("log", value, logBase);
     }
 
     // Function that makes actual calculations on computed input
@@ -115,6 +148,10 @@ public class MathParser
                 result = Calculator.Div(item1, item2);
                 break;
 
+            case "log":
+                result = Calculator.Log(item1, item2);
+                break;
+
             default:
                 break;
 
@@ -123,6 +160,19 @@ public class MathParser
         
         return result;
     }
+
+
+    public static void WorkOutBrackets(string[] args, string currentItem, int currentLoc)
+    {
+        for(int i = currentLoc; i<args.Count(); i++)
+        {
+            if (args[i] == "(") //start search for closing bracket
+            {
+                
+            }
+        }   
+    }
+
 }
 
 
