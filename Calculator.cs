@@ -30,5 +30,10 @@ public class Calculator
         return (float)Math.Log(val, logBase);   
     } 
 
+    public static float Pow(float val, float power)
+    {
+        return (float)Math.Pow(val, power);
+    }
+
 
 }

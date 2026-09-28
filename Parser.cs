@@ -5,7 +5,7 @@ using System.Linq;
 public class MathParser
 {
     
-    static string[] mathematicalOperators = ["+","-","*","/"];
+    static string[] mathematicalOperators = ["+","-","*","/", "^"];
     static string[] specialOperators = ["log"];
 
     public static string ParseInput(string input)
@@ -67,7 +67,7 @@ public class MathParser
                     }
    
                 }
-                else if (input.Contains("log"))
+                else if (input.Contains("log") || input.Contains("^"))
                 {
                     if(currentItem == "log")
                     {
@@ -76,6 +76,15 @@ public class MathParser
                         input = input.Replace(currentExpression, currentResult.ToString());
                         break;
                     }
+                    else if(currentItem == "^")
+                    {
+                        Console.WriteLine("Currently evaluating a power");
+                        float currentResult = EvaluateExpression(args, i);
+
+                        input = input.Replace(currentExpression, currentResult.ToString());
+                        break;
+                    }
+
                 }
                 else if (input.Contains('*') || input.Contains('/'))
                 {
@@ -150,6 +159,10 @@ public class MathParser
 
             case "log":
                 result = Calculator.Log(item1, item2);
+                break;
+            
+            case "^":
+                result = Calculator.Pow(item1, item2);
                 break;
 
             default:
