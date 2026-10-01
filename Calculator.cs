@@ -4,35 +4,52 @@ public class Calculator
 {
 
     // perform addition between floating point numbers
-    public static float Add(float a, float b)
+    public float Add(float a, float b)
     {
         return a+b;
     }
 
-    public static float Subt(float a, float b)
+    public float Subt(float a, float b)
     {
         return a-b;
     }
 
-    public static float Div(float a, float b)
+    public float Div(float a, float b)
     {
         return a/b;
     }
 
-    public static float Mult(float a, float b)
+    public float Mult(float a, float b)
     {
         return a*b;
     }
 
     // takes the logarithm of the 'val' with base value 'logBase'
-    public static float Log(float val, float logBase)
+    public float Log(float logBase, float val)
     {
         return (float)Math.Log(val, logBase);   
     } 
 
-    public static float Pow(float val, float power)
+    public float Pow(float val, float power)
     {
         return (float)Math.Pow(val, power);
+    }
+
+
+
+    public Dictionary<string, Func<float, float, float>> operations;
+
+    public Calculator()
+    {
+        operations = new()
+        {
+            ["+"] = Add,
+            ["-"] = Subt,
+            ["*"] = Mult,
+            ["/"] = Div,
+            ["log"] = Log,
+            ["^"] = Pow
+        };
     }
 
 

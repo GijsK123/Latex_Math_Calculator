@@ -6,13 +6,15 @@ public class MathParser
 {
     
     static string[] mathematicalOperators = ["+","-","*","/", "^"];
-    static string[] specialOperators = ["log"];
+    static string[] specialOperators = ["log", "sqrt"];
 
     public static string ParseInput(string input)
     {
-        
-        while(input.Contains(' '))
+        int counter = 0;
+        while(input.Contains(' ') && counter < 1)
         {
+            Console.WriteLine("Restarting ENTIRE loop");
+            counter++;
             string[] args = input.Split([' ','_']);
 
             // start at second-to-last item as the last item will never be an operator
@@ -23,6 +25,8 @@ public class MathParser
 
                 
                 string currentExpression;
+
+                // Checking what operator we are currently working with
                 if (mathematicalOperators.Contains(currentItem))
                 {
                     currentExpression = args[i-1] + " " + currentItem + " " + args[i+1];
@@ -35,19 +39,22 @@ public class MathParser
                 {
                     currentExpression = currentItem;
                 }   
-
+                Console.WriteLine($"Current expression is: {currentExpression}");
 
                 // Working out brackets!!
                 if (input.Contains(')')) // find the whole expression as a sub-expression, evaluate it, continue
                 {
+                    Console.WriteLine($"Input contains a bracket, current item: {currentItem}");
                     if (currentItem == ")")
                     {
+                        Console.WriteLine("Found opening bracket");
                         // find the closing bracket
                         for(int j = i - 1; j >= 0; j--)
                         {
                             int diff = Math.Abs(j-i);
                             if (args[j] == "(") // if diff smaller than 1, there is no value in the brackets
                             {
+                                Console.WriteLine("Found closing bracket");
                                 string subString = string.Join(" ", args[(j+1)..i]);
                                 if(diff <= 1)
                                 {
@@ -56,6 +63,7 @@ public class MathParser
                                 } 
                                 else
                                 {
+                                    Console.WriteLine($"Now parsing substring: {subString}");
                                     string evaluatedSubString = ParseInput(subString);
                                     input = input.Replace("( " + subString + " )", evaluatedSubString);
                                     break;
@@ -71,14 +79,12 @@ public class MathParser
                 {
                     if(currentItem == "log")
                     {
-                        Console.WriteLine("Currently evaluating a logarithm");
                         float currentResult = EvaluateLogarithm(args, i);
                         input = input.Replace(currentExpression, currentResult.ToString());
                         break;
                     }
                     else if(currentItem == "^")
                     {
-                        Console.WriteLine("Currently evaluating a power");
                         float currentResult = EvaluateExpression(args, i);
 
                         input = input.Replace(currentExpression, currentResult.ToString());
@@ -90,7 +96,6 @@ public class MathParser
                 {
                     if(currentItem is "*" or "/")
                     {
-                        Console.WriteLine($"Current item is:{currentItem}");
                         float currentResult = EvaluateExpression(args, i);
                         input = input.Replace(currentExpression, currentResult.ToString());
                         break;
@@ -100,11 +105,7 @@ public class MathParser
                     input = input.Replace(currentExpression, currentResult.ToString());
                     break;
                 }
-                else
-                {
-                    Console.WriteLine("There was no operator found, something is wrong I think");
-                    return "";
-                }
+
             }
         }
         return input;
@@ -114,9 +115,6 @@ public class MathParser
     public static float EvaluateExpression(string[] input, int i)
     {   
         // setup expression
-        Console.WriteLine($"Input size is still:{input.Length} and i is {i}");
-
-        Console.WriteLine($"Current part: {input[i-1]} {input[i]} {input[i+1]}");
         string currentOp = input[i];
         float rhs = float.Parse(input[i+1]);
         float lhs = float.Parse(input[i-1]);
