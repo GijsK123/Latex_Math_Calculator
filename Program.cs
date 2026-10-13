@@ -1,39 +1,39 @@
 
 class Program
 {
-
     static void Main(string[] args)
     {
-        Lexer lexer = new Lexer();
+        Lexer lexer = new();
+        Console.WriteLine("Enter a mathematical expression, or 'exit' to quit.");
+
         while (true)
         {
-            Console.WriteLine("Insert a mathematical expression");
-            string input = Console.ReadLine();
-
-
-            List<Token> tokens = lexer.LexInput(input);
-            List<Token> cleanedTokens = lexer.CleanUpTokens(tokens);
-
-            bool tokensValid = lexer.ValidateTokens(cleanedTokens);
-            if (!tokensValid)
+            Console.Write("> ");
+            string? input = Console.ReadLine();
+            if (input is null || input.Trim().Equals("exit", StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine("The given expression was not valid, try again");
-                continue;
+                return;
             }
 
+            try
+            {
+                List<Token> tokens = lexer.LexInput(input);
+                if (!lexer.ValidateTokens(tokens))
+                {
+                    Console.WriteLine("Enter a nonempty expression with correctly nested parentheses.");
+                    continue;
+                }
 
-            /*
-            string[] parts = input.Split(' ');
-            // It is a latex inline math expression
-            if(parts[0] == "$")
-            {
-                
+                // Show the lexer output while the parser is still being developed.
+                foreach (Token token in tokens)
+                {
+                    Console.WriteLine($"{token.type}: '{token.value}' at position {token.position}");
+                }
             }
-            else // assuming normal mathematical expression
+            catch (LexerException exception)
             {
-                string result = MathParser.ParseInput(input);
-                Console.WriteLine($"Equation evaluates to: {result}");
-            }*/
+                Console.WriteLine(exception.Message);
+            }
         }
     }
 }

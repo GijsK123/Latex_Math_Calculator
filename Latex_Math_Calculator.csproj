@@ -7,4 +7,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Keep the unfinished parser drafts until they are ready to compile. -->
+    <Compile Remove="Parser.cs;Parser_v2.cs" />
+    <Compile Remove="tests/**/*.cs" />
+  </ItemGroup>
+
 </Project>

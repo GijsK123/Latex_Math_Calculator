@@ -1,95 +1,142 @@
-using System;
-
-public class Lexer
+public sealed class Lexer : ILexer
 {
-    
-
+    // Read each token directly from the source so whitespace never joins separate values.
     public List<Token> LexInput(string input)
     {
-        List<string> splitInput = input.Where(c => c != '_').Select(c => c.ToString()).ToList();; //splitting every single item
-        List<Token> tokens = new List<Token>();
+        ArgumentNullException.ThrowIfNull(input);
 
-        Console.WriteLine($"split input size = {splitInput.Count}");
+        List<Token> tokens = new();
+        int position = 0;
 
-        for(int i = 0; i<splitInput.Count; i++)
+        while (position < input.Length)
         {
-            string s = splitInput[i];
-            if (char.IsDigit(s[0]))
-            {
-                Token t = new Token(TokenType.Number, s, i);
-                tokens.Add(t);
-            }
-            else if (s[0] == '(')
-            {
-                Token t = new Token(TokenType.OpeningBracket, s, i);
-                tokens.Add(t);
+            char current = input[position];
 
-            }
-            else if(s[0] == ')')
+            if (char.IsWhiteSpace(current))
             {
-                Token t = new Token(TokenType.ClosingBracket, s, i);
-                tokens.Add(t);
+                position++;
+                continue;
+            }
+
+            int start = position;
+            TokenType type;
+
+            if (char.IsAsciiDigit(current) || current == '.')
+            {
+                ReadNumber(input, ref position);
+                type = TokenType.Number;
+            }
+            else if (char.IsAsciiLetter(current))
+            {
+                // Function names and variables share a token type; the parser decides their meaning.
+                position++;
+                while (position < input.Length && char.IsAsciiLetterOrDigit(input[position]))
+                {
+                    position++;
+                }
+
+                type = TokenType.Identifier;
             }
             else
             {
-                Token t = new Token(TokenType.Operation, s, i);
-                tokens.Add(t);
+                type = current switch
+                {
+                    '+' or '-' or '*' or '/' or '^' => TokenType.Operation,
+                    '(' => TokenType.OpeningBracket,
+                    ')' => TokenType.ClosingBracket,
+                    ',' => TokenType.Comma,
+                    '_' => TokenType.Underscore,
+                    _ => throw new LexerException($"Unexpected character '{current}'.", position)
+                };
+                position++;
             }
 
-
+            tokens.Add(new Token(type, input[start..position], start));
         }
+
         return tokens;
     }
 
-    /*
-    First, we are going to merge all subsequent numbers together, as well as operators as these
-    might be like ['l','o','g'] to turn these into 'log'.
-    */
-    public List<Token> CleanUpTokens(List<Token> originalTokens)
-    {
-        List<Token> newList = new List<Token>();
-
-        foreach(Token t in originalTokens)
-        {
-            Console.WriteLine(t);
-        }
-
-
-        for (int i = 0; i < originalTokens.Count; i++)
-        {
-            Token current = originalTokens[i];
-            string newValue = current.value;
-
-            Console.WriteLine($"New value is: {newValue}");
-
-            // Continue incrementing i while the next token is of the same type
-            while (i + 1 < originalTokens.Count && originalTokens[i + 1].type == current.type)
-            {
-                Console.WriteLine($"The current token is: {originalTokens[i+1]}");
-                i++;
-                newValue += originalTokens[i].value;
-            }
-
-
-            int newListLe = newList.Count;
-            newValue = newValue.Trim();
-            newList.Add(new Token(current.type, newValue, newListLength));
-        }
-
-        return newList;
-    }
-
+    // This checks only for nonempty input and correctly nested parentheses.
+    // Operand order, function arguments and other grammar rules belong in the parser.
     public bool ValidateTokens(List<Token> tokens)
     {
-        bool validTokens = true;
+        ArgumentNullException.ThrowIfNull(tokens);
 
+        if (tokens.Count == 0)
+        {
+            return false;
+        }
 
-        int amountOpenBrackets = tokens.Count(t => t.type == TokenType.OpeningBracket);
-        int amountCloseBrackets = tokens.Count(t => t.type == TokenType.ClosingBracket);
-        bool sameAmountBrackets = amountOpenBrackets == amountCloseBrackets;
+        int depth = 0;
+        foreach (Token token in tokens)
+        {
+            if (token.type == TokenType.OpeningBracket)
+            {
+                depth++;
+            }
+            else if (token.type == TokenType.ClosingBracket)
+            {
+                depth--;
+                if (depth < 0)
+                {
+                    return false;
+                }
+            }
+        }
 
+        return depth == 0;
+    }
 
+    // A number has digits, an optional decimal point and an optional e/E exponent.
+    // Leading signs stay separate operators; signs inside an exponent belong to the number.
+    private static void ReadNumber(string input, ref int position)
+    {
+        int start = position;
+        ReadDigits(input, ref position);
+        bool hasDigits = position > start;
 
-        return validTokens && sameAmountBrackets;
+        if (position < input.Length && input[position] == '.')
+        {
+            position++;
+            int fractionStart = position;
+            ReadDigits(input, ref position);
+            hasDigits |= position > fractionStart;
+        }
+
+        if (!hasDigits)
+        {
+            throw new LexerException("A number must contain at least one digit.", start);
+        }
+
+        if (position < input.Length && input[position] is 'e' or 'E')
+        {
+            int exponentStart = position;
+            position++;
+            if (position < input.Length && input[position] is '+' or '-')
+            {
+                position++;
+            }
+
+            int digitsStart = position;
+            ReadDigits(input, ref position);
+            if (position == digitsStart)
+            {
+                throw new LexerException("An exponent must contain at least one digit.", exponentStart);
+            }
+        }
+
+        if (position < input.Length && input[position] is '.' or 'e' or 'E')
+        {
+            throw new LexerException("Unexpected character in a number.", position);
+        }
+    }
+
+    private static void ReadDigits(string input, ref int position)
+    {
+        while (position < input.Length && char.IsAsciiDigit(input[position]))
+        {
+            position++;
+        }
     }
 }
